@@ -1,3 +1,9 @@
+// -------------------------------------------------------------
+// Bot with Vision Radius
+// (c) 2025 ChatGPT
+// All Rights Reserved
+// -------------------------------------------------------------
+
 #include <iostream.h>   // for input/output
 #include <conio.h>      // for kbhit() and getch()
 #include <stdlib.h>     // for rand() and randomize()
