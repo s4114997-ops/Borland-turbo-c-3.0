@@ -5,8 +5,8 @@ unsigned char byfer[y][x],bgr='*',textcolr[y][x],textbgr[y][x];
 
 //Очистка или запесь всего буфера с цветным фоном и текстом
 void clrbyfer(){
- for (short int iy=0;iy < y;iy++){
-   for (short int ix=0;ix < x;ix++){
+ for (signed char iy=0;iy < y;iy++){
+   for (signed char ix=0;ix < x;ix++){
     textbgr[iy][ix]=1; //цвет фона 1 синий
     textcolr[iy][ix]=15; //цвет текста 15 белый
     byfer[iy][ix]=bgr; //ascll probel 32
@@ -19,8 +19,8 @@ void clrbyfer(){
 //Вывод всего буфера на экран,никаких clrscr();
 void prntbyfer(){
 _setcursortype(0);
- for (short int iy=0;iy < y;iy++){
-   for (short int ix=0;ix < x;ix++){
+ for (signed char iy=0;iy < y;iy++){
+   for (signed char ix=0;ix < x;ix++){
      textbackground(textbgr[iy][ix]); //цвет фона
      textcolor(textcolr[iy][ix]); //цвет текста
       gotoxy(1+ix,1+iy); //если без гото то будет дублирование
@@ -38,8 +38,8 @@ void uptbyfer(){
 _setcursortype(0); //ybiraem kyrsor
 unsigned char ehbyf[y][x];
 
- for (short int iy=0;iy < y;iy++){
-   for (short int ix=0;ix < x;ix++){
+ for (signed char  iy=0;iy < y;iy++){
+   for (signed char ix=0;ix < x;ix++){
      ehbyf[iy][ix]=0;
      if (ehbyf[iy][ix] != byfer[iy][ix]){
      ehbyf[iy][ix]=byfer[iy][ix]; 
@@ -73,4 +73,5 @@ getch();
 byfer[3][3]=32;
 uptbyfer();
 
-getcтекстом
+getch();
+}
