@@ -10,7 +10,9 @@ void clrbyfer(){
     textbgr[iy][ix]=1; //цвет фона 1 синий
     textcolr[iy][ix]=15; //цвет текста 15 белый
     byfer[iy][ix]=bgr; //ascll probel 32
+     asm nop;
     }
+   asm nop;
  }
 }
 
@@ -23,23 +25,52 @@ _setcursortype(0);
      textcolor(textcolr[iy][ix]); //цвет текста
       gotoxy(1+ix,1+iy); //если без гото то будет дублирование
      cprintf("%c",byfer[iy][ix]);
-   //  gotoxy(1,1);
+    asm nop;
     }
+    asm nop;
  }
 }
+
+
+
+//Обновить буфера на экран то что изменилось,никаких clrscr();
+void uptbyfer(){
+_setcursortype(0); //ybiraem kyrsor
+unsigned char ehbyf[y][x];
+
+ for (short int iy=0;iy < y;iy++){
+   for (short int ix=0;ix < x;ix++){
+     ehbyf[iy][ix]=0;
+     if (ehbyf[iy][ix] != byfer[iy][ix]){
+     ehbyf[iy][ix]=byfer[iy][ix]; 
+     byfer[iy][ix]=ehbyf[iy][ix];
+     textbackground(textbgr[iy][ix]); //цвет фона
+     textcolor(textcolr[iy][ix]); //цвет текста
+      gotoxy(1+ix,1+iy); //если без гото то будет дублирование
+     cprintf("%c",byfer[iy][ix]);
+                }
+    asm nop;
+    }
+    asm nop;
+ }
+}
+
 
 void main(){
 clrscr();
 
 clrbyfer();
 prntbyfer();
-getch();
-textcolor(textcolr[3][3]=2); //cvet simvoLa massiva byfer[3][3] -2 green
-byfer[3][3]=bgr; //6:2=3 (y,x)-3 seredina *
-prntbyfer();
-getch();
-byfer[3][3]=32;
-prntbyfer();
 
 getch();
-}
+byfer[2][2]='#';
+uptbyfer();
+getch();
+textcolor(textcolr[3][3]=2); //cvet simvoLa massiva byfer[3][3] -2 green
+byfer[3][3]='*'; //6:2=3 (y,x)-3 seredina *
+uptbyfer();
+getch();
+byfer[3][3]=32;
+uptbyfer();
+
+getcтекстом
