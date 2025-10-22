@@ -1,77 +1,84 @@
 #include <conio.h>
 
-unsigned int const y=5,x=10;  //y-5 строк, x-10 столбцов
-unsigned char byfer[y][x],bgr='*',textcolr[y][x],textbgr[y][x];
+unsigned const char y = 5, x = 10;  // y - строки, x - столбцы
+unsigned char byfer[y][x], ehbyf[y][x], bgr = '*';
+unsigned char textcolr[y][x], textbgr[y][x];
+unsigned char ehtextcolr[y][x], ehtextbgr[y][x]; // буферы для отслеживания цвета
 
-//Очистка или запесь всего буфера с цветным фоном и текстом
-void clrbyfer(){
- for (signed char iy=0;iy < y;iy++){
-   for (signed char ix=0;ix < x;ix++){
-    textbgr[iy][ix]=1; //цвет фона 1 синий
-    textcolr[iy][ix]=15; //цвет текста 15 белый
-    byfer[iy][ix]=bgr; //ascll probel 32
-     asm nop;
+// Очистка или запись всего буфера с цветным фоном и текстом
+void clrbyfer() {
+    for (signed char iy = 0; iy < y; iy++) {
+        for (signed char ix = 0; ix < x; ix++) {
+            textbgr[iy][ix] = 1;      // фон — синий
+            textcolr[iy][ix] = 15;    // текст — белый
+            byfer[iy][ix] = bgr;      // символ — '*'
+
+            // Сброс бэкапов
+            ehbyf[iy][ix] = byfer[iy][ix];
+            ehtextcolr[iy][ix] = textcolr[iy][ix];
+            ehtextbgr[iy][ix] = textbgr[iy][ix];
+        }
     }
-   asm nop;
- }
 }
 
-//Вывод всего буфера на экран,никаких clrscr();
-void prntbyfer(){
-_setcursortype(0);
- for (signed char iy=0;iy < y;iy++){
-   for (signed char ix=0;ix < x;ix++){
-     textbackground(textbgr[iy][ix]); //цвет фона
-     textcolor(textcolr[iy][ix]); //цвет текста
-      gotoxy(1+ix,1+iy); //если без гото то будет дублирование
-     cprintf("%c",byfer[iy][ix]);
-    asm nop;
+// Вывод всего буфера на экран
+void prntbyfer() {
+    _setcursortype(0); // убрать курсор
+    for (signed char iy = 0; iy < y; iy++) {
+        for (signed char ix = 0; ix < x; ix++) {
+            textbackground(textbgr[iy][ix]);
+            textcolor(textcolr[iy][ix]);
+            gotoxy(1 + ix, 1 + iy);
+            cprintf("%c", byfer[iy][ix]);
+        }
     }
-    asm nop;
- }
 }
 
+// Обновление на экране только тех ячеек, что изменились
+void uptbyfer() {
+    _setcursortype(0); // убрать курсор
+    for (signed char iy = 0; iy < y; iy++) {
+        for (signed char ix = 0; ix < x; ix++) {
+            if (
+                byfer[iy][ix] != ehbyf[iy][ix] ||
+                textcolr[iy][ix] != ehtextcolr[iy][ix] ||
+                textbgr[iy][ix] != ehtextbgr[iy][ix]
+            ) {
+                // Сохраняем новое состояние
+                ehbyf[iy][ix] = byfer[iy][ix];
+                ehtextcolr[iy][ix] = textcolr[iy][ix];
+                ehtextbgr[iy][ix] = textbgr[iy][ix];
 
-
-//Обновить буфера на экран то что изменилось,никаких clrscr();
-void uptbyfer(){
-_setcursortype(0); //ybiraem kyrsor
-unsigned char ehbyf[y][x];
-
- for (signed char  iy=0;iy < y;iy++){
-   for (signed char ix=0;ix < x;ix++){
-     ehbyf[iy][ix]=0;
-     if (ehbyf[iy][ix] != byfer[iy][ix]){
-     ehbyf[iy][ix]=byfer[iy][ix]; 
-     byfer[iy][ix]=ehbyf[iy][ix];
-     textbackground(textbgr[iy][ix]); //цвет фона
-     textcolor(textcolr[iy][ix]); //цвет текста
-      gotoxy(1+ix,1+iy); //если без гото то будет дублирование
-     cprintf("%c",byfer[iy][ix]);
-                }
-    asm nop;
+                textbackground(textbgr[iy][ix]);
+                textcolor(textcolr[iy][ix]);
+                gotoxy(1 + ix, 1 + iy);
+                cprintf("%c", byfer[iy][ix]);
+            }
+        }
     }
-    asm nop;
- }
 }
 
+void main() {
+    clrscr();
 
-void main(){
-clrscr();
+    clrbyfer();
+    prntbyfer();
 
-clrbyfer();
-prntbyfer();
+    getch();
 
-getch();
-byfer[2][2]='#';
-uptbyfer();
-getch();
-textcolor(textcolr[3][3]=2); //cvet simvoLa massiva byfer[3][3] -2 green
-byfer[3][3]='*'; //6:2=3 (y,x)-3 seredina *
-uptbyfer();
-getch();
-byfer[3][3]=32;
-uptbyfer();
+    byfer[2][2] = '#';
+    uptbyfer();
 
-getch();
+    getch();
+
+    textcolr[3][3] = 2;     // зелёный
+    byfer[3][3] = '*';
+    uptbyfer();
+
+    getch();
+
+    byfer[3][3] = 32;       // пробел
+    uptbyfer();
+
+    getch();
 }
