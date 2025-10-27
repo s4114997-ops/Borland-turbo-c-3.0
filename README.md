@@ -16,7 +16,7 @@ When the bot reaches the food, the food respawns at a new random location.
 
 Features
 
-Console field of size 40 × 20.
+Console field 
 
 Bot starts in the center of the field.
 
