@@ -1,121 +1,89 @@
-// -------------------------------------------------------------
-// Bot with Vision Radius
-// (c) 2025 ChatGPT
-// All Rights Reserved
-// -------------------------------------------------------------
+#include <iostream.h>
+#include <conio.h>
+#include <stdlib.h>
+#include <dos.h>
 
-#include <iostream.h>   // for input/output
-#include <conio.h>      // for kbhit() and getch()
-#include <stdlib.h>     // for rand() and randomize()
-#include <dos.h>        // for delay()
+signed const char WIDTH = 39;   // ширина поля stoLbiki(x)
+signed const char HEIGHT = 24;  // высота поля stroki(y)
 
-const int WIDTH = 40;        // game field width
-const int HEIGHT = 20;       // game field height
-const int VISION_RADIUS = 3; // bot's vision radius
-
-char field[HEIGHT][WIDTH];   // game field as a 2D array of characters
-
-int botX = WIDTH / 2;        // bot's current X position (default: center of the field)
-int botY = HEIGHT / 2;       // bot's current Y position
-
-int foodX;                   // food's X position
-int foodY;                   // food's Y position
-
-void opticpu() {
-    asm nop;
-}
+signed char botX = WIDTH / 2;       // позиция бота по X-stolbik
+signed char botY = HEIGHT / 2;      // позиция бота по Y-stroka
+signed char foodX=8, foodY=5;           // позиция еды
 
 
-// Function to place food in a random position on the field
-void placeFood() {
-    foodX = rand() % WIDTH;   // random number from 0 to WIDTH-1
-    foodY = rand() % HEIGHT;  // random number from 0 to HEIGHT-1
-}
-
-// Function to draw the field, bot, and food
+// отрисовка поля=============================================
 void draw() {
-    _setcursortype(0);
-    clrscr();  // clear screen
-
-    for (int y = 0; y < HEIGHT; y++) {     // iterate through rows of the field
-        for (int x = 0; x < WIDTH; x++) {  // iterate through columns of the field
-
-            // If this is the bot’s position — draw '*'
-            if (x == botX && y == botY) cout << '*';
-            // If this is the food’s position — draw 'o'
-            else if (x == foodX && y == foodY) cout << 'o';
-            // Otherwise, draw empty space
-            else
-                cout << ' ';
-            opticpu();
+  _setcursortype(0);
+    clrscr();  // очистка экрана (можно убрать для оптимизации)
+    for (signed char y = 0; y < HEIGHT; y++) {   //skaniryem prosmotr vsego poLya
+	for (signed char x = 0; x < WIDTH; x++) {   //kak po h tak i po w
+            if (x == botX && y == botY) cout << '*';   // бот
+	  else  if (x == foodX && y == foodY) cout << 'o';   // eda
+	   else { cout << "."; }
+        asm nop;
         }
-        cout << "\r\n";  // newline after each row
-        opticpu();
+        cout << "\r\n";         // перевод строки
+      asm nop;     //cpu- optimizaciya
     }
-
-    // Display bot and food positions
-    cout << "Bot: (" << botX << "," << botY << ")  Food: (" << foodX << "," << foodY << ")\r\n";
-    opticpu();
 }
+//--------------------------------------------------------------------------------------------------------------------------------------
 
-// Function to move the bot considering integer weights and vision radius
+// логика движения бота к еде (примитивно)=======================
 void moveBot() {
-    int dx = foodX - botX;   // X-axis difference between bot and food
-    int dy = foodY - botY;   // Y-axis difference between bot and food
+    signed char vision = 2; // расстояние, на котором бот видит еду
 
-    int weightX = 0;         // weight along X (0 or 1)
-    int weightY = 0;         // weight along Y (0 or 1)
+    // Проверяем: находится ли еда в квадрате зрения вокруг бота
+    if (foodX >= botX - vision && foodX <= botX + vision &&
+        foodY >= botY - vision && foodY <= botY + vision) {
 
-    // Check if the food is within the vision radius along X
-    if (dx >= -VISION_RADIUS && dx <= VISION_RADIUS) weightX = 1;
+        // Еда видна — двигаемся к ней
+        if (botX < foodX) botX++;
+        else if (botX > foodX) botX--;
 
-    // Check if the food is within the vision radius along Y
-    if (dy >= -VISION_RADIUS && dy <= VISION_RADIUS) weightY = 1;
+        if (botY < foodY) botY++;
+        else if (botY > foodY) botY--;
 
-    if (weightX == 1 && weightY == 1) {
-        // If food is visible along both X and Y — move towards it
-
-        if (dx > 0) botX++;        // move right
-        else if (dx < 0) botX--;   // move left
-
-        if (dy > 0) botY++;        // move down
-        else if (dy < 0) botY--;   // move up
     } else {
-        // If food is outside the vision radius — make a random step
-        int stepX = (rand() % 3) - 1;  // random value from {-1 left, 0 stay, 1 right}
-        int stepY = (rand() % 3) - 1;  // random value from {-1 up, 0 stay, 1 down}
+        // Еда не видна — двигаемся случайно, чтобы искать
+        signed char dir = rand() % 4; // 0-вверх, 1-вниз, 2-влево, 3-вправо
+        switch (dir) {
+            case 0: botY--; break;
+            case 1: botY++; break;
+            case 2: botX--; break;
+            case 3: botX++; break;
+        }
 
-        botX += stepX;  // move along X
-        botY += stepY;  // move along Y
-
-        // Make sure the bot does not go outside the field
+        // Не выходим за границы поля
         if (botX < 0) botX = 0;
-        if (botX >= WIDTH) botX = WIDTH - 1;
-
         if (botY < 0) botY = 0;
+        if (botX >= WIDTH) botX = WIDTH - 1;
         if (botY >= HEIGHT) botY = HEIGHT - 1;
     }
+
+    // Проверка — дошёл ли бот до еды
+    if (botX == foodX && botY == foodY) {
+        delay(900); // пауза — бот "ест"
+        foodX = rand() % WIDTH;  // новая еда
+        foodY = rand() % HEIGHT;
+    }
 }
+//---------------------------------------------------------------------------------------------------------------------------------------
 
-// Main function
+
 int main() {
-    randomize();   // initialize random number generator
+    randomize();
 
-    placeFood();   // place food at a random position
-
-    while (!kbhit()) {    // loop until a key is pressed
-        draw();           // draw field with bot and food
-        moveBot();        // move bot
-
-        // If the bot reaches the food — place new food at a random position
-        if (botX == foodX && botY == foodY) {
-            delay(2000);
-            placeFood();
-        }
-
-        delay(150);       // delay to slow down the loop (150 ms)
+    while (!kbhit()) {
+        draw();        // отрисовка поля
+        moveBot();     // бот движется
+	delay(150);     // скорости обновления(уменьши для быстродействия)
+      asm nop;
     }
 
-    getch();   // wait for a key press before exiting
+    getch();  // ждем нажатия клавиши перед выходом
+    
     return 0;
 }
+
+
+
